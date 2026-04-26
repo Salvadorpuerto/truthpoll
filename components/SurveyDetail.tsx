@@ -243,7 +243,7 @@ export default function SurveyDetail({ survey, onClose }: {
             {/* World ID Button */}
             <IDKitWidget
               app_id={process.env.NEXT_PUBLIC_APP_ID as `app_${string}`}
-              action={`survey_${survey.id}`}
+              action={survey.id}
               verification_level={VerificationLevel.Device}
               handleVerify={handleVerify}
               onSuccess={onSuccess}
