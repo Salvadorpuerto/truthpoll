@@ -12,9 +12,10 @@ export async function POST(req: NextRequest) {
     const app_id = process.env.NEXT_PUBLIC_APP_ID
     const action = `survey_${surveyId}`
 
-    // Verify proof via Worldcoin cloud API directly
+    console.log('Verifying:', { app_id, action, nullifier: proof.nullifier_hash })
+
     const verifyRes = await fetch(
-      `https://developer.worldcoin.org/api/v2/verify/${app_id}`,
+      `https://developer.worldcoin.org/api/v1/verify/${app_id}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -24,11 +25,13 @@ export async function POST(req: NextRequest) {
           proof: proof.proof,
           verification_level: proof.verification_level,
           action: action,
+          signal: '',
         }),
       }
     )
 
     const verifyData = await verifyRes.json()
+    console.log('API response:', verifyRes.status, verifyData)
 
     if (!verifyRes.ok) {
       return NextResponse.json(
@@ -37,21 +40,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // ✅ Valid — log response (replace with DB in production)
-    console.log('Valid response:', {
-      surveyId,
-      nullifier: proof.nullifier_hash,
-      answers,
-      timestamp: new Date().toISOString(),
-    })
-
     return NextResponse.json({
       success: true,
-      message: 'Response recorded. Reward will be sent to your wallet.',
+      message: 'Response recorded successfully!',
       nullifier: proof.nullifier_hash,
     })
-  } catch (err) {
+
+  } catch (err: any) {
     console.error('Verify error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal server error', detail: err.message },
+      { status: 500 }
+    )
   }
 }
