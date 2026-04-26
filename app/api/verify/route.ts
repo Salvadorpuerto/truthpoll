@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
     }
 
     const app_id = process.env.NEXT_PUBLIC_APP_ID
-    const action = `survey_${surveyId}`
+    const action = surveyId
 
     console.log('Verifying:', { app_id, action, nullifier: proof.nullifier_hash })
 
