@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
     console.log('Verifying:', { app_id, action, nullifier: proof.nullifier_hash })
 
     const verifyRes = await fetch(
-      `https://developer.worldcoin.org/api/v1/verify/${app_id}`,
+      `https://developer.worldcoin.org/api/v2/verify/${app_id}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -30,8 +30,19 @@ export async function POST(req: NextRequest) {
       }
     )
 
-    const verifyData = await verifyRes.json()
-    console.log('API response:', verifyRes.status, verifyData)
+    const text = await verifyRes.text()
+console.log('API raw response:', verifyRes.status, text)
+
+let verifyData
+try {
+  verifyData = JSON.parse(text)
+} catch {
+  return NextResponse.json(
+    { error: 'Invalid response from Worldcoin API', raw: text.slice(0, 200) },
+    { status: 500 }
+  )
+}
+console.log('API response:', verifyRes.status, verifyData)
 
     if (!verifyRes.ok) {
       return NextResponse.json(
