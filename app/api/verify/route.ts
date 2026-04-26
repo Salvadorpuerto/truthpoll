@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
     const rp_id = 'rp_85d34433da0afbfb'
 
     console.log('Verifying v4:', { rp_id, surveyId, nullifier: proof.nullifier_hash })
+    console.log('Full proof object:', JSON.stringify(proof, null, 2))
 
     const verifyRes = await fetch(
       `https://developer.world.org/api/v4/verify/${rp_id}`,
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           action: surveyId,
           signal: '',
+          protocol_version: '3.0',
           responses: [
             {
               proof: proof.proof,
