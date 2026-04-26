@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyCloudProof, IVerifyResponse, ISuccessResult } from '@worldcoin/idkit'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,33 +9,41 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing proof or surveyId' }, { status: 400 })
     }
 
-    const app_id = process.env.NEXT_PUBLIC_APP_ID as `app_${string}`
+    const app_id = process.env.NEXT_PUBLIC_APP_ID
     const action = `survey_${surveyId}`
 
-    // Verify the World ID proof via Worldcoin cloud API
-    const verifyRes: IVerifyResponse = await verifyCloudProof(
-      proof as ISuccessResult,
-      app_id,
-      action,
+    // Verify proof via Worldcoin cloud API directly
+    const verifyRes = await fetch(
+      `https://developer.worldcoin.org/api/v2/verify/${app_id}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          nullifier_hash: proof.nullifier_hash,
+          merkle_root: proof.merkle_root,
+          proof: proof.proof,
+          verification_level: proof.verification_level,
+          action: action,
+        }),
+      }
     )
 
-    if (!verifyRes.success) {
+    const verifyData = await verifyRes.json()
+
+    if (!verifyRes.ok) {
       return NextResponse.json(
-        { error: 'World ID verification failed', detail: verifyRes },
+        { error: 'World ID verification failed', detail: verifyData },
         { status: 400 }
       )
     }
 
-    // ✅ Proof is valid — save response
-    // In production: save to DB, check nullifier_hash not used before
+    // ✅ Valid — log response (replace with DB in production)
     console.log('Valid response:', {
       surveyId,
       nullifier: proof.nullifier_hash,
       answers,
       timestamp: new Date().toISOString(),
     })
-
-    // TODO: trigger WLD payment + NFT mint via smart contract here
 
     return NextResponse.json({
       success: true,
