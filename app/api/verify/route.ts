@@ -19,8 +19,16 @@ export async function POST(req: NextRequest) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...proof,
           action: surveyId,
+          signal: '',
+          responses: [
+            {
+              proof: proof.proof,
+              merkle_root: proof.merkle_root,
+              nullifier_hash: proof.nullifier_hash,
+              verification_level: proof.verification_level,
+            }
+          ],
         }),
       }
     )
