@@ -17,20 +17,26 @@ export default function SurveyDetail({ survey, onClose }: {
 
   // Called when World ID proof is received — send to backend for verification
   const handleVerify = async (proof: ISuccessResult) => {
-    const res = await fetch('/api/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        proof,
-        surveyId: survey.id,
-        answers,
-      }),
-    })
-    if (!res.ok) {
-      const data = await res.json()
-      throw new Error(data.error || 'Verification failed')
-    }
+  const res = await fetch('/api/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      proof,
+      surveyId: survey.id,
+      answers,
+    }),
+  })
+
+  const data = await res.json()
+  console.log('Verify response:', data)
+
+  // Accept both real success and demo mode
+  if (data.success) {
+    return // IDKit will call onSuccess
   }
+
+  throw new Error(data.error || 'Verification failed')
+}
 
   const onSuccess = () => {
     setStep('success')
