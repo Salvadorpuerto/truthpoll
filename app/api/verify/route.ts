@@ -3,50 +3,31 @@ import { NextRequest, NextResponse } from 'next/server'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { proof, surveyId, answers } = body
+    const { proof, surveyId } = body
 
     if (!proof || !surveyId) {
       return NextResponse.json({ error: 'Missing proof or surveyId' }, { status: 400 })
     }
 
-    const app_id = process.env.NEXT_PUBLIC_APP_ID
-    const action = surveyId
+    const rp_id = 'rp_85d34433da0afbfb'
 
-    console.log('Verifying:', { app_id, action, nullifier: proof.nullifier_hash })
+    console.log('Verifying v4:', { rp_id, surveyId, nullifier: proof.nullifier_hash })
 
     const verifyRes = await fetch(
-      `https://developer.worldcoin.org/api/v2/verify/${app_id}`,
+      `https://developer.world.org/api/v4/verify/${rp_id}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nullifier_hash: proof.nullifier_hash,
-          merkle_root: proof.merkle_root,
-          proof: proof.proof,
-          verification_level: proof.verification_level,
-          action: action,
-          signal: '',
-        }),
+        body: JSON.stringify(proof),
       }
     )
 
     const text = await verifyRes.text()
-console.log('API raw response:', verifyRes.status, text)
-
-let verifyData
-try {
-  verifyData = JSON.parse(text)
-} catch {
-  return NextResponse.json(
-    { error: 'Invalid response from Worldcoin API', raw: text.slice(0, 200) },
-    { status: 500 }
-  )
-}
-console.log('API response:', verifyRes.status, verifyData)
+    console.log('API v4 response:', verifyRes.status, text)
 
     if (!verifyRes.ok) {
       return NextResponse.json(
-        { error: 'World ID verification failed', detail: verifyData },
+        { error: 'Verification failed', detail: text },
         { status: 400 }
       )
     }
@@ -60,8 +41,3 @@ console.log('API response:', verifyRes.status, verifyData)
   } catch (err: any) {
     console.error('Verify error:', err)
     return NextResponse.json(
-      { error: 'Internal server error', detail: err.message },
-      { status: 500 }
-    )
-  }
-}
