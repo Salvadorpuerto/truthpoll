@@ -24,7 +24,7 @@ export interface Survey {
 // Mock survey data — replace with DB in production
 export const SURVEYS: Survey[] = [
   {
-    id: 'survey_001',
+    id: 'survey-001',
     category: '🏛 Economics',
     title: 'How has inflation affected your household spending?',
     description: 'Anonymous research on global inflation impact. Your demographic data (age range, country) is verified via World ID but never stored personally.',
@@ -67,7 +67,7 @@ export const SURVEYS: Survey[] = [
     ],
   },
   {
-    id: 'survey_002',
+    id: 'survey-002',
     category: '🗳 Political',
     title: 'Attitudes toward AI regulation in your country',
     description: 'Academic research into public opinion on AI governance. Responses are anonymous and demographically verified via World ID. Data published in aggregate only.',
@@ -110,7 +110,7 @@ export const SURVEYS: Survey[] = [
     ],
   },
   {
-    id: 'survey_003',
+    id: 'survey-003',
     category: '🏥 Public Health',
     title: 'Mental health access and affordability survey',
     description: 'WHO-affiliated research on mental health service accessibility. Demographically targeted — anonymous credential confirms region.',
